@@ -6,6 +6,9 @@ on:
     paths:
       - 'links.txt'
 
+permissions:
+  contents: write
+
 jobs:
   download:
     runs-on: ubuntu-latest
@@ -14,32 +17,43 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Install aria2
+        run: |
+          sudo apt update
+          sudo apt install -y aria2
+
       - name: Create downloads folder
         run: mkdir -p downloads
 
-      - name: Download files
+      - name: Download files with aria2
         run: |
-          while IFS= read -r url
-          do
-            [ -z "$url" ] && continue
+          grep -v '^[[:space:]]*$' links.txt > urls.txt
 
-            echo "Downloading: $url"
+          aria2c \
+            --input-file=urls.txt \
+            --dir=downloads \
+            --continue=true \
+            --max-connection-per-server=16 \
+            --split=16 \
+            --min-split-size=1M \
+            --max-concurrent-downloads=8 \
+            --file-allocation=none \
+            --summary-interval=5
 
-            filename=$(basename "${url%%\?*}")
+      - name: Show downloaded files
+        run: |
+          echo "Downloaded files:"
+          ls -lh downloads/
 
-            curl -L "$url" -o "downloads/$filename"
-          done < links.txt
-
-      - name: Commit downloaded files
+      - name: Commit files
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
 
           git add downloads/
 
-          git diff --cached --quiet && echo "No changes" || git commit -m "Add downloaded files"
+          git diff --cached --quiet && echo "No changes" || git commit -m "Downloaded new files"
 
       - name: Push changes
-        uses: ad-m/github-push-action@master
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git push
