@@ -1,8 +1,8 @@
-13.140.25.30/birdy_full.zip.001
-13.140.25.30/birdy_full.zip.002
-13.140.25.30/birdy_full.zip.003
-13.140.25.30/birdy_full.zip.004
-13.140.25.30/birdy_full.zip.005
-13.140.25.30/birdy_full.zip.006
-13.140.25.30/birdy_full.zip.007
-13.140.25.30/birdy_full.zip.008
+http://13.140.25.30/birdy_full.zip.001
+http://13.140.25.30/birdy_full.zip.002
+http://13.140.25.30/birdy_full.zip.003
+http://13.140.25.30/birdy_full.zip.004
+http://13.140.25.30/birdy_full.zip.005
+http://13.140.25.30/birdy_full.zip.006
+http://13.140.25.30/birdy_full.zip.007
+http://13.140.25.30/birdy_full.zip.008
