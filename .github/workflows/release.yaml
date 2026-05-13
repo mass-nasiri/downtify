@@ -1,0 +1,45 @@
+name: Download And Release
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install aria2
+        run: |
+          sudo apt update
+          sudo apt install -y aria2
+
+      - name: Create folders
+        run: |
+          mkdir -p downloads
+
+      - name: Download files
+        run: |
+          grep -v '^[[:space:]]*$' links.txt > urls.txt
+
+          aria2c \
+            --input-file=urls.txt \
+            --dir=downloads \
+            --continue=true \
+            --max-connection-per-server=16 \
+            --split=16 \
+            --min-split-size=1M \
+            --max-concurrent-downloads=8 \
+            --file-allocation=none
+
+      - name: Create Release
+        id: create_release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: files-${{ github.run_id }}
+          name: Downloaded Files
+          files: downloads/*
