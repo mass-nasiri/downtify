@@ -1,0 +1,45 @@
+name: Download Files
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'links.txt'
+
+jobs:
+  download:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Create downloads folder
+        run: mkdir -p downloads
+
+      - name: Download files
+        run: |
+          while IFS= read -r url
+          do
+            [ -z "$url" ] && continue
+
+            echo "Downloading: $url"
+
+            filename=$(basename "${url%%\?*}")
+
+            curl -L "$url" -o "downloads/$filename"
+          done < links.txt
+
+      - name: Commit downloaded files
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+
+          git add downloads/
+
+          git diff --cached --quiet && echo "No changes" || git commit -m "Add downloaded files"
+
+      - name: Push changes
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
